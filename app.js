@@ -200,9 +200,42 @@ function showInfo(){
     }
 
 
-    else{
-        userInfo.innerHTML = `<tr class="employeeDetails"><td class="empty" colspan="11" align="center">No data available in table</td></tr>`
-        table.style.minWidth = "1400px"
+    // else{
+    //     userInfo.innerHTML = `<tr class="employeeDetails"><td class="empty" colspan="11" align="center">No data available in table</td></tr>`
+    //     table.style.minWidth = "1400px"
+    // }
+
+    else {
+        // Clear existing content
+        userInfo.innerHTML = '';
+    
+        // Create loading spinner element
+        const loadingSpinner = document.createElement('div');
+        loadingSpinner.className = 'loading-spinner';
+    
+        // Create loading text element
+        const loadingText = document.createElement('div');
+        loadingText.className = 'loading-text';
+        loadingText.innerHTML = 'Loading data...';
+    
+        // Create a new row for loading animation
+        const loadingRow = document.createElement('tr');
+        loadingRow.className = 'employeeDetails';
+    
+        // Append spinner and text to the row
+        const loadingCell = document.createElement('td');
+        loadingCell.className = 'empty';
+        loadingCell.colSpan = '11'; // Adjust based on your table structure
+        loadingCell.appendChild(loadingSpinner);
+        loadingCell.appendChild(loadingText);
+        
+        loadingRow.appendChild(loadingCell);
+        
+        // Insert the loading row into the userInfo table
+        userInfo.appendChild(loadingRow);
+    
+        // Optionally set minWidth of the table
+        table.style.minWidth = "1400px";
     }
 }
 

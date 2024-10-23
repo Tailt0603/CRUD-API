@@ -414,3 +414,25 @@ input::-webkit-outer-spin-button{
     opacity: 1;
     visibility: visible;
 }
+
+.loading-spinner {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 30px; /* Size of the spinner */
+    height: 30px; /* Size of the spinner */
+    animation: spin 1s linear infinite; /* Spin effect */
+    margin: 0 auto; /* Center the spinner */
+}
+
+/* Keyframes for the spin animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Center the loading text */
+.loading-text {
+    margin-top: 10px; /* Space between spinner and text */
+    text-align: center; /* Center the loading text */
+}
