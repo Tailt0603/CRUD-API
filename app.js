@@ -519,36 +519,39 @@ tabSize.addEventListener('change', ()=>{
 
 
 
-filterData.addEventListener("input", ()=> {
+filterData.addEventListener("input", async ()=> {
     const searchTerm = filterData.value.toLowerCase().trim()
 
-    if(searchTerm !== ""){
+    if (searchTerm !== "") {
+        try {
+            // Fetch filtered data from the API
+            const response = await fetch(`https://67185641b910c6a6e02bb95e.mockapi.io/users?search=${searchTerm}`);
+            
+            // Check if the response is okay
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
 
-        const filteredData = originalData.filter((item) => {
-            const fullName = (item.fName + " " + item.lName).toLowerCase()
-            const city = item.cityVal.toLowerCase()
-            const position = item.positionVal.toLowerCase()
+            // Parse the JSON data from the response
+            const filteredData = await response.json();
 
-            return(
-                fullName.includes(searchTerm) ||
-                city.includes(searchTerm) ||
-                position.includes(searchTerm)
-            )
-        })
-
-        // Update the current data with filtered data
-        getData = filteredData
-    }
-
-    else{
+            // Update the current data with the filtered data from the API
+            getData = filteredData;
+            showInfo();
+        } catch (error) {
+            console.error('Error fetching filtered data:', error);
+        }
+    } else {
+        // If search term is empty, restore the original data
         initializeData();
         getData = originalData;
+        showInfo();
     }
 
-
-    currentIndex = 1
-    startIndex = 1
-    displayIndexBtn()
+    // Reset index and update display after filtering
+    currentIndex = 1;
+    startIndex = 1;
+    displayIndexBtn();
 })
 
 let currentSort = {
@@ -556,7 +559,7 @@ let currentSort = {
     direction: 'default' 
 };
 
-function sortTable(column) {
+async function sortTable(column) {
     // Toggle sorting direction for the selected column
     if (currentSort.column === column) {
         // Cycle through 'asc' -> 'desc' -> 'default'
@@ -567,69 +570,31 @@ function sortTable(column) {
         } else {
             currentSort.direction = 'default';
         }
-    }else {
-        currentSort.column = column;
-        currentSort.direction = 'asc';
-    }
-
-    if (currentSort.direction === 'default') {
-        initializeData();
-        getData = [...originalData];
     } else {
-        getData.sort((a, b) => {
-            let valueA, valueB;
-
-            switch (column) {
-                case 'id':
-                    valueA = parseInt(a.id);
-                    valueB = parseInt(b.id);
-                    break;
-                case 'fullName':
-                    valueA = (a.fName + " " + a.lName).toLowerCase();
-                    valueB = (b.fName + " " + b.lName).toLowerCase();
-                    break;
-                case 'age':
-                    valueA = parseInt(a.ageVal);
-                    valueB = parseInt(b.ageVal);
-                    break;
-                case 'city':
-                    valueA = a.cityVal.toLowerCase();
-                    valueB = b.cityVal.toLowerCase();
-                    break;
-                case 'position':
-                    valueA = a.positionVal.toLowerCase();
-                    valueB = b.positionVal.toLowerCase();
-                    break;
-                case 'salary':
-                    valueA = parseFloat(a.salaryVal);
-                    valueB = parseFloat(b.salaryVal);
-                    break;
-                case 'sDate':
-                    valueA = new Date(a.sDateVal);
-                    valueB = new Date(b.sDateVal);
-                    break;
-                case 'email':
-                    valueA = a.emailVal.toLowerCase();
-                    valueB = b.emailVal.toLowerCase();
-                    break;
-                case 'phone':
-                    valueA = a.phoneVal.toLowerCase();
-                    valueB = b.phoneVal.toLowerCase();
-                    break;
-                default:
-                    return 0;
-            }
-
-            if (currentSort.direction === 'asc') {
-                return valueA > valueB ? 1 : -1;
-            } else {
-                return valueA < valueB ? 1 : -1;
-            }
-        });
+        currentSort.column = column;
+        currentSort.direction = 'asc'; // Reset direction to 'asc' for a new column
     }
 
-    // Update table with sorted data or reset data
-    showInfo();
+    // If direction is 'default', initialize data
+    if (currentSort.direction === 'default') {
+        initializeData(); // Reset or reinitialize data
+        getData = [...originalData]; // Restore original data
+    } else {
+        // Fetch sorted data based on currentSort
+        try {
+            const response = await fetch(`https://67185641b910c6a6e02bb95e.mockapi.io/users?sortBy=${column}&order=${currentSort.direction}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            getData = await response.json(); // Assign fetched sorted data to getData
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return; // Exit if an error occurs
+        }
+    }
+
+    // Update table with sorted or reset data
+    showInfo(); // Update your UI table with getData
 
     // Update sort icons based on direction
     updateSortIcons(column);
@@ -649,5 +614,6 @@ function updateSortIcons(column) {
         selectedIcon.textContent = '↕️'; // Reset to default icon
     }
 }
+
 
 displayIndexBtn()
